@@ -23,27 +23,55 @@ jQuery(document).ready(function($) {
     confettiContainer.innerHTML = flakes;
   }
 
-  // Array of thank you messages
-  const messages = [
-    "Thank you for celebrating with us! 💖🎉",
-    "Thanks for being awesome! 🌸✨",
-    "You are the best! Thanks for coming! 💕🙌",
-    "Thank you, you're a star! 🌟💖",
-    "I'm so grateful to have you here with me today! 🎀🎂",
-    "Your presence made this day even more special! 🍰✨",
-    "Thanks for making this celebration unforgettable! 🎊💗",
-    "You've truly made today memorable, thank you! 🥳💖",
-    "You're amazing—thank you for being part of this day! 🌷🌈"
+  // Messages when lighting the candle
+  const lightMessages = [
+    "จุดเทียนแล้ว! หลับตาแล้วอธิษฐานในใจได้เลยนะ 🕯️🌟",
+    "จุดเทียนเรียบร้อย! พร้อมเป่าเค้กหรือยังเอ่ย? 🎂💖",
+    "เทียนสว่างไสวแล้ว! ขอพรวันเกิดได้เลยนะ ✨💕",
+    "Thank you for celebrating with us! พร้อมเป่าเทียนแล้ว 🎉🕯️"
   ];
 
-  // When the button is clicked
+  // Messages when blowing out the candle
+  const blowMessages = [
+    "🎂 ฟู่ววว~ อธิษฐานเรียบร้อยแล้ว ขอให้ทุกความปรารถนาเป็นจริงนะ! ✨💖",
+    "🎉 เย้! เป่าเค้กแล้ว ขอให้มีความสุขมากๆ สุขภาพแข็งแรงตลอดปีนะ! 💕🌷",
+    "🌟 Make a wish! ขอให้ปีนี้เป็นปีที่ยอดเยี่ยมและสดใสที่สุด! 🌈🎂",
+    "🍰 เป่าเทียนสำเร็จ! ขอให้มีแต่รอยยิ้มและสิ่งดีๆ เข้ามาในชีวิตนะ! 🎈✨",
+    "💖 Happy Birthday! ขอให้ความฝันทุกข้อกลายเป็นจริงในเร็ววันนะ! 🥳🎉"
+  ];
+
+  // When clicking "จุดเทียน"
   $('#lightCandleButton').click(function() {
-    // Light up the candle flame
+    // Reset any previous smoke animation
+    $('.smoke').removeClass('active');
+    
+    // Light up the flame
     $('.flame').addClass('lit');
 
-    // Display a random thank you message
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    $('#thankYouMessage').text(randomMessage).addClass('show');
+    // Display random lighting message
+    const msg = lightMessages[Math.floor(Math.random() * lightMessages.length)];
+    $('#thankYouMessage').text(msg).addClass('show');
+  });
+
+  // When clicking "เป่าเค้ก"
+  $('#blowCandleButton').click(function() {
+    if ($('.flame').hasClass('lit')) {
+      // Extinguish the flame
+      $('.flame').removeClass('lit');
+
+      // Trigger smoke puff effect
+      const smokeEl = $('.smoke');
+      smokeEl.removeClass('active');
+      void smokeEl[0].offsetWidth; // trigger reflow to restart animation
+      smokeEl.addClass('active');
+
+      // Display random birthday wish
+      const wish = blowMessages[Math.floor(Math.random() * blowMessages.length)];
+      $('#thankYouMessage').text(wish).addClass('show');
+    } else {
+      // If candle is not lit yet
+      $('#thankYouMessage').text("เทียนยังไม่ได้จุดเลยน้า! กดปุ่ม 'จุดเทียน 🕯️' ก่อนนะ ✨").addClass('show');
+    }
   });
 
   // Safe handler for celebrateBtn if present
