@@ -1,31 +1,42 @@
 jQuery(document).ready(function($) {
-  // Generate sweet pink theme confetti
-  var flakes = '';
-  var pinkShades = [
-    '#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', '#ffd6e0',
-    '#f72585', '#b5179e', '#f48fb1', '#ffffff', '#ffe4e6', 
-    '#fbc2eb', '#ff007f', '#ffccd5'
-  ];
+  // Check user preference for reduced motion
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  for (var i = 0, len = 260; i < len; i++) {
-    var randomColor = pinkShades[Math.floor(Math.random() * pinkShades.length)];
-    var size = Math.floor(Math.random() * 8 + 8); // 8px to 15px
-    var duration = (Math.random() * 7 + 4).toFixed(2);
-    var delay = (Math.random() * 4).toFixed(2);
+  // Generate sweet pink theme confetti (optimized to 95 particles for high performance)
+  if (!prefersReducedMotion) {
+    var flakes = '';
+    var pinkShades = [
+      '#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', '#ffd6e0',
+      '#f72585', '#b5179e', '#f48fb1', '#ffffff', '#ffe4e6', 
+      '#fbc2eb', '#ff007f', '#ffccd5'
+    ];
 
-    flakes += '<div class="ball" style="background: ' + randomColor + 
-              '; width: ' + size + 'px; height: ' + size + 'px;' +
-              '; animation-duration: ' + duration + 's; animation-delay: ' + delay + 's;"></div>';
+    for (var i = 0, len = 95; i < len; i++) {
+      var randomColor = pinkShades[Math.floor(Math.random() * pinkShades.length)];
+      var size = Math.floor(Math.random() * 8 + 8); // 8px to 15px
+      var duration = (Math.random() * 7 + 4).toFixed(2);
+      var delay = (Math.random() * 4).toFixed(2);
+
+      flakes += '<div class="ball" style="background: ' + randomColor + 
+                '; width: ' + size + 'px; height: ' + size + 'px;' +
+                ' animation-duration: ' + duration + 's; animation-delay: ' + delay + 's;"></div>';
+    }
+
+    var confettiContainer = document.getElementById('confetti');
+    if (confettiContainer) {
+      confettiContainer.innerHTML = flakes;
+    }
   }
 
-  var confettiContainer = document.getElementById('confetti');
-  if (confettiContainer) {
-    confettiContainer.innerHTML = flakes;
+  // Safe string sanitization helper
+  function sanitizeText(str) {
+    if (!str) return '';
+    return $('<div>').text(str.trim()).text();
   }
 
   // Personalized lighting & blowing messages
   function getLightMessages(name) {
-    var trimmed = (name || '').trim();
+    var trimmed = sanitizeText(name);
     if (trimmed) {
       return [
         'จุดเทียนแล้ว! ' + trimmed + ' หลับตาแล้วอธิษฐานในใจได้เลยนะ 🕯️🌟',
@@ -43,7 +54,7 @@ jQuery(document).ready(function($) {
   }
 
   function getBlowMessages(name) {
-    var trimmed = (name || '').trim();
+    var trimmed = sanitizeText(name);
     if (trimmed) {
       return [
         '🎂 ฟู่ววว~ อธิษฐานเรียบร้อยแล้ว ขอให้ ' + trimmed + ' สมหวังทุกความปรารถนานะ! ✨💖',
@@ -67,7 +78,7 @@ jQuery(document).ready(function($) {
     try {
       var searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has('name') && searchParams.get('name').trim()) {
-        return searchParams.get('name').trim();
+        return sanitizeText(searchParams.get('name'));
       }
     } catch (e) {}
 
@@ -75,9 +86,9 @@ jQuery(document).ready(function($) {
       var hashMatch = window.location.hash.match(/name=([^&]+)/);
       if (hashMatch) {
         try {
-          return decodeURIComponent(hashMatch[1]).trim();
+          return sanitizeText(decodeURIComponent(hashMatch[1]));
         } catch (e) {
-          return hashMatch[1].trim();
+          return sanitizeText(hashMatch[1]);
         }
       }
     }
@@ -99,11 +110,52 @@ jQuery(document).ready(function($) {
     }
   }
 
+  // Toast notification helper
+  function showToast(text) {
+    var toast = $('#copyToast');
+    toast.text(text).addClass('show');
+    clearTimeout(toast.data('timer'));
+    var timer = setTimeout(function() {
+      toast.removeClass('show');
+    }, 2800);
+    toast.data('timer', timer);
+  }
+
+  // Clipboard copy helper with fallback
+  function copyTextToClipboard(text, onSuccess, onError) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
+        fallbackCopy(text, onSuccess, onError);
+      });
+    } else {
+      fallbackCopy(text, onSuccess, onError);
+    }
+  }
+
+  function fallbackCopy(text, onSuccess, onError) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "-9999px";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      var successful = document.execCommand('copy');
+      if (successful && onSuccess) onSuccess();
+      else if (!successful && onError) onError();
+    } catch (err) {
+      if (onError) onError(err);
+    }
+    document.body.removeChild(textArea);
+  }
+
   var currentName = '';
 
   // Show birthday celebration screen
   function showCelebration(name) {
-    currentName = (name || '').trim();
+    currentName = sanitizeText(name);
     if (!currentName) return;
 
     // Update title text: HAPPY DAY TO [Name]
@@ -119,6 +171,9 @@ jQuery(document).ready(function($) {
       nameScreen.hide();
       birthdayScreen.css('display', 'flex').addClass('fade-in');
       syncUrl(currentName);
+
+      // Focus management for accessibility
+      $('#lightCandleButton').focus();
     }, 400);
   }
 
@@ -134,7 +189,7 @@ jQuery(document).ready(function($) {
 
   // Submit name action
   function handleNameSubmit() {
-    var val = $('#nameInput').val().trim();
+    var val = sanitizeText($('#nameInput').val());
     if (!val) {
       $('#inputError').addClass('show');
       $('.name-card').removeClass('shake');
@@ -165,6 +220,16 @@ jQuery(document).ready(function($) {
 
   // Change name button
   $('#changeNameBtn').on('click', showNamePrompt);
+
+  // Copy shareable link button
+  $('#copyShareBtn').on('click', function() {
+    var shareUrl = window.location.href;
+    copyTextToClipboard(shareUrl, function() {
+      showToast(currentName ? 'คัดลอกลิงก์สำหรับ ' + currentName + ' แล้ว! 💌' : 'คัดลอกลิงก์เรียบร้อยแล้ว! 💌');
+    }, function() {
+      showToast('กรุณาคัดลอกลิงก์จากแถบ URL ด้านบนนะ 🔗');
+    });
+  });
 
   // Initial check: if name is passed in URL, prefill it
   var initialName = getUrlName();

@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <title>Happy Birthday! 🎂</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ร่วมส่งความสุขและเป่าเค้กวันเกิดสุดพิเศษให้กับเพื่อนของคุณ 🎂✨">
+  <meta name="theme-color" content="#ffd6e2">
+  <meta property="og:title" content="Happy Birthday Celebration! 🎂">
+  <meta property="og:description" content="มาร่วมอธิษฐานและเป่าเค้กวันเกิดสุดน่ารักไปด้วยกันนะ! 💖">
+  <meta property="og:type" content="website">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="./style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
@@ -14,35 +20,36 @@
 <body>
 
 <!-- Confetti container -->
-<div id="confetti"></div>
+<div id="confetti" aria-hidden="true"></div>
 
 <!-- Step 1: Name Entry Screen -->
 <div id="nameScreen" class="name-screen">
   <div class="name-card">
-    <div class="card-icon">🎂</div>
+    <div class="card-icon" aria-hidden="true">🎂</div>
     <h2 class="card-title">วันเกิดของใครเอ่ย? ✨</h2>
     <p class="card-subtitle">กรอกชื่อเจ้าของวันเกิด เพื่อเริ่มงานฉลองสุดพิเศษ 🎉</p>
     
     <div class="input-wrapper">
+      <label for="nameInput" class="sr-only">กรอกชื่อเจ้าของวันเกิด</label>
       <input type="text" id="nameInput" placeholder="พิมพ์ชื่อตรงนี้..." maxlength="30" autocomplete="off" autofocus>
     </div>
-    <div id="inputError" class="input-error">กรุณากรอกชื่อก่อนน้า 💖</div>
+    <div id="inputError" class="input-error" role="alert" aria-live="polite">กรุณากรอกชื่อก่อนน้า 💖</div>
     
-    <button id="submitNameBtn" class="btn-next" type="button">
+    <button id="submitNameBtn" class="btn-next" type="button" aria-label="ไปยังหน้าเค้กวันเกิด">
       <span>ถัดไป ➔</span>
     </button>
   </div>
 </div>
 
 <!-- Step 2: Birthday Celebration Screen -->
-<div class="main-wrapper" id="birthdayScreen" style="display: none;">
+<div class="main-wrapper" id="birthdayScreen" style="display: none;" tabindex="-1">
   <h1 class="birthday-title">
     <span class="title-text">HAPPY DAY TO ...</span> 
-    <span class="title-emoji">💖🎂</span>
+    <span class="title-emoji" aria-hidden="true">💖🎂</span>
   </h1>
 
   <!-- Cake elements  -->
-  <div class="cake-area">
+  <div class="cake-area" aria-label="เค้กวันเกิด">
     <div class="cake">
       <div class="plate"></div>
       <div class="layer layer-bottom"></div>
@@ -53,24 +60,30 @@
       <div class="drip drip2"></div>
       <div class="drip drip3"></div>
       <div class="candle">
-          <div class="flame"></div>
-          <div class="smoke"></div>
+          <div class="flame" aria-hidden="true"></div>
+          <div class="smoke" aria-hidden="true"></div>
       </div>
     </div>
   </div>
 
   <!-- Action buttons -->
   <div class="actions">
-    <button id="lightCandleButton">จุดเทียน 🕯️</button>
-    <button id="blowCandleButton">เป่าเค้ก 💨</button>
+    <button id="lightCandleButton" aria-label="จุดเทียนบนเค้ก">จุดเทียน 🕯️</button>
+    <button id="blowCandleButton" aria-label="เป่าเทียนเค้กวันเกิด">เป่าเค้ก 💨</button>
   </div>
 
   <!-- Display random thank you message -->
-  <div id="thankYouMessage"></div>
+  <div id="thankYouMessage" role="status" aria-live="polite"></div>
 
-  <!-- Change name button -->
-  <button id="changeNameBtn" class="change-name-btn" type="button">✏️ เปลี่ยนชื่อ</button>
+  <!-- Secondary actions -->
+  <div class="secondary-actions">
+    <button id="changeNameBtn" class="change-name-btn" type="button" aria-label="กลับไปแก้ไขชื่อเจ้าของวันเกิด" title="กลับไปเปลี่ยนชื่อ">✏️ เปลี่ยนชื่อ</button>
+    <button id="copyShareBtn" class="copy-link-btn" type="button" aria-label="คัดลอกลิงก์วันเกิดนี้ไปให้เพื่อน" title="คัดลอกลิงก์ส่งให้เพื่อน">🔗 คัดลอกลิงก์</button>
+  </div>
 </div>
+
+<!-- Toast notification -->
+<div id="copyToast" class="copy-toast" role="status" aria-live="polite">คัดลอกลิงก์แล้ว! 💌</div>
 
 </body>
 </html>
