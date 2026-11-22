@@ -357,168 +357,197 @@ body {
   }
 }
 
-/* ---------------- Name Input & Share Card ---------------- */
-.name-control-card {
-  margin-top: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 14px 18px;
-  border-radius: 24px;
-  border: 1.5px solid rgba(255, 182, 193, 0.6);
-  box-shadow: 0 8px 24px rgba(247, 37, 133, 0.12);
-  width: 100%;
-  max-width: 440px;
-  z-index: 5;
-}
-
-.name-input-row {
+/* ---------------- Step 1: Name Entry Screen ---------------- */
+.name-screen {
+  position: fixed;
+  inset: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+  background: radial-gradient(circle at 50% 35%, #fff5f8 0%, #ffd6e2 50%, #fbc2eb 100%);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.name-screen.fade-out {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.name-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 28px;
+  border: 1.5px solid rgba(255, 182, 193, 0.7);
+  box-shadow: 
+    0 15px 40px rgba(247, 37, 133, 0.18),
+    0 2px 10px rgba(255, 255, 255, 0.8) inset;
+  padding: 38px 28px;
+  max-width: 400px;
   width: 100%;
-  background: #ffffff;
-  border-radius: 30px;
-  border: 1.5px solid #ffccd5;
-  padding: 4px 6px;
-  gap: 8px;
-  transition: all 0.25s ease;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  animation: cardPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.name-input-row:focus-within {
-  border-color: #f72585;
-  box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.18);
+@keyframes cardPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-.prefix-select {
-  border: none;
-  background: linear-gradient(135deg, #ffe5ec 0%, #ffd6e0 100%);
-  color: #c2185b;
+.card-icon {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: iconBounce 2s ease-in-out infinite alternate;
+}
+
+@keyframes iconBounce {
+  0% { transform: translateY(0) rotate(-3deg); }
+  100% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.card-title {
+  margin: 0 0 10px 0;
+  font-size: 1.75rem;
   font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.3px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  outline: none;
-  cursor: pointer;
-  border: 1px solid #ffccd5;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  background: linear-gradient(135deg, #d81b60 0%, #f72585 50%, #b5179e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.prefix-select:hover {
-  background: linear-gradient(135deg, #ffd6e0 0%, #ffccd5 100%);
-}
-
-#nameInput {
-  flex: 1;
-  min-width: 80px;
-  border: none;
-  background: transparent;
-  padding: 8px 4px;
+.card-subtitle {
+  margin: 0 0 24px 0;
   font-size: 0.95rem;
-  font-family: inherit;
-  font-weight: 600;
-  color: #880e4f;
-  outline: none;
+  color: #a23b6c;
+  line-height: 1.5;
 }
 
-#nameInput::placeholder {
-  color: #f48fb1;
+.input-wrapper {
+  margin-bottom: 4px;
+}
+
+.name-card input[type="text"] {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #880e4f;
+  background: #ffffff;
+  border: 2px solid #ffccd5;
+  border-radius: 25px;
+  outline: none;
+  text-align: center;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.name-card input[type="text"]:focus {
+  border-color: #f72585;
+  box-shadow: 0 0 0 4px rgba(247, 37, 133, 0.2);
+}
+
+.name-card input[type="text"]::placeholder {
+  color: #f8a5c2;
   font-weight: 400;
 }
 
-.clear-btn {
-  background: none;
-  border: none;
-  color: #f48fb1;
-  cursor: pointer;
-  padding: 6px 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-  transition: color 0.2s;
-  flex-shrink: 0;
+.input-error {
+  color: #e91e63;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.clear-btn:hover {
-  color: #d81b60;
+.input-error.show {
+  opacity: 1;
+  height: 20px;
 }
 
-.btn-row {
-  display: flex;
-  gap: 10px;
+.btn-next {
   width: 100%;
-  justify-content: center;
+  padding: 14px 28px;
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff5c8a 0%, #f72585 100%);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(247, 37, 133, 0.35);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.share-btn {
-  background: linear-gradient(135deg, #ff758f 0%, #f72585 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
+.btn-next:hover {
+  background: linear-gradient(135deg, #ff7096 0%, #ff0a78 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(247, 37, 133, 0.5);
+}
+
+.btn-next:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.name-card.shake {
+  animation: shakeCard 0.4s ease-in-out;
+}
+
+@keyframes shakeCard {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* ---------------- Change Name Button in Celebration ---------------- */
+.change-name-btn {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 182, 193, 0.7);
+  color: #c2185b;
   font-size: 0.88rem;
   font-weight: 600;
-  font-family: inherit;
-  letter-spacing: 0.3px;
+  padding: 8px 18px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(247, 37, 133, 0.28);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
 }
 
-.share-btn:hover {
-  background: linear-gradient(135deg, #ff8fa3 0%, #ff0a78 100%);
-  box-shadow: 0 6px 18px rgba(247, 37, 133, 0.4);
+.change-name-btn:hover {
+  background: #ffffff;
+  color: #d81b60;
+  box-shadow: 0 4px 15px rgba(247, 37, 133, 0.2);
   transform: translateY(-1px);
 }
 
-.share-btn:active {
-  transform: translateY(1px);
+.main-wrapper.fade-in {
+  animation: fadeInMain 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Toast message */
-.copy-toast {
-  position: fixed;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%) translateY(30px);
-  background: rgba(30, 30, 30, 0.88);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: #ffffff;
-  padding: 10px 22px;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 999;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-}
-
-.copy-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-@media (max-width: 480px) {
-  .name-input-row {
-    flex-wrap: wrap;
-    border-radius: 20px;
-    padding: 8px;
+@keyframes fadeInMain {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(15px);
   }
-  .prefix-select {
-    width: 100%;
-    text-align: center;
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 

@@ -16,9 +16,28 @@
 <!-- Confetti container -->
 <div id="confetti"></div>
 
-<div class="main-wrapper">
+<!-- Step 1: Name Entry Screen -->
+<div id="nameScreen" class="name-screen">
+  <div class="name-card">
+    <div class="card-icon">🎂</div>
+    <h2 class="card-title">วันเกิดของใครเอ่ย? ✨</h2>
+    <p class="card-subtitle">กรอกชื่อเจ้าของวันเกิด เพื่อเริ่มงานฉลองสุดพิเศษ 🎉</p>
+    
+    <div class="input-wrapper">
+      <input type="text" id="nameInput" placeholder="พิมพ์ชื่อตรงนี้..." maxlength="30" autocomplete="off" autofocus>
+    </div>
+    <div id="inputError" class="input-error">กรุณากรอกชื่อก่อนน้า 💖</div>
+    
+    <button id="submitNameBtn" class="btn-next" type="button">
+      <span>ถัดไป ➔</span>
+    </button>
+  </div>
+</div>
+
+<!-- Step 2: Birthday Celebration Screen -->
+<div class="main-wrapper" id="birthdayScreen" style="display: none;">
   <h1 class="birthday-title">
-    <span class="title-text">Happy Birthday!</span> 
+    <span class="title-text">HAPPY DAY TO ...</span> 
     <span class="title-emoji">💖🎂</span>
   </h1>
 
@@ -49,27 +68,9 @@
   <!-- Display random thank you message -->
   <div id="thankYouMessage"></div>
 
-  <!-- Name input & share link card -->
-  <div class="name-control-card">
-    <div class="name-input-row">
-      <select id="prefixSelect" class="prefix-select" title="เลือกรูปแบบข้อความ">
-        <option value="HAPPY DAY TO" selected>HAPPY DAY TO</option>
-        <option value="HAPPY BIRTHDAY TO">HAPPY BIRTHDAY TO</option>
-        <option value="HBD TO">HBD TO</option>
-      </select>
-      <input type="text" id="nameInput" placeholder="ใส่ชื่อเพื่อนตรงนี้..." maxlength="30" autocomplete="off">
-      <button id="clearNameBtn" class="clear-btn" type="button" title="ล้างชื่อ" style="display: none;">✕</button>
-    </div>
-    <div class="btn-row">
-      <button id="shareLinkBtn" class="share-btn" type="button">
-        <span>คัดลอกลิงก์ส่งให้เพื่อน 🔗</span>
-      </button>
-    </div>
-  </div>
+  <!-- Change name button -->
+  <button id="changeNameBtn" class="change-name-btn" type="button">✏️ เปลี่ยนชื่อ</button>
 </div>
-
-<!-- Toast notification -->
-<div id="copyToast" class="copy-toast">คัดลอกลิงก์แล้ว! 💌</div>
 
 </body>
 </html>

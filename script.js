@@ -23,7 +23,7 @@ jQuery(document).ready(function($) {
     confettiContainer.innerHTML = flakes;
   }
 
-  // Helper functions for dynamic personalized messages
+  // Personalized lighting & blowing messages
   function getLightMessages(name) {
     var trimmed = (name || '').trim();
     if (trimmed) {
@@ -62,185 +62,115 @@ jQuery(document).ready(function($) {
     ];
   }
 
-  // Dynamic Name & Title Management
-  function updateTitle(name, prefix) {
-    var p = prefix || 'HAPPY DAY TO';
-    var trimmed = (name || '').trim();
-    if (trimmed) {
-      $('.title-text').text(p + ' ' + trimmed);
-      document.title = p + ' ' + trimmed + '! 🎂';
-    } else {
-      $('.title-text').text('Happy Birthday!');
-      document.title = 'Happy Birthday! 🎂';
-    }
-  }
-
-  function buildShareUrl(name, prefix) {
-    var url;
-    try {
-      url = new URL(window.location.href);
-    } catch (e) {
-      url = {
-        origin: window.location.origin || '',
-        pathname: window.location.pathname || '',
-        searchParams: new URLSearchParams()
-      };
-    }
-
-    if (url.searchParams) {
-      if (name && name.trim()) {
-        url.searchParams.set('name', name.trim());
-      } else {
-        url.searchParams.delete('name');
-      }
-
-      if (prefix && prefix !== 'HAPPY DAY TO') {
-        url.searchParams.set('prefix', prefix);
-      } else {
-        url.searchParams.delete('prefix');
-      }
-      return url.toString();
-    }
-
-    var base = (window.location.origin || '') + (window.location.pathname || '');
-    var params = [];
-    if (name && name.trim()) params.push('name=' + encodeURIComponent(name.trim()));
-    if (prefix && prefix !== 'HAPPY DAY TO') params.push('prefix=' + encodeURIComponent(prefix));
-    return params.length ? base + '?' + params.join('&') : base;
-  }
-
-  function syncUrlAddressBar(name, prefix) {
-    if (window.history && window.history.replaceState) {
-      try {
-        var newUrl = buildShareUrl(name, prefix);
-        window.history.replaceState({}, '', newUrl);
-      } catch (err) {
-        // Ignored on file:// or restrictive contexts
-      }
-    }
-  }
-
-  function getUrlParams() {
-    var name = '';
-    var prefix = 'HAPPY DAY TO';
+  // Get name from URL if present
+  function getUrlName() {
     try {
       var searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has('name')) {
-        name = searchParams.get('name') || '';
-      }
-      if (searchParams.has('prefix')) {
-        prefix = searchParams.get('prefix') || 'HAPPY DAY TO';
+      if (searchParams.has('name') && searchParams.get('name').trim()) {
+        return searchParams.get('name').trim();
       }
     } catch (e) {}
 
-    // Hash fallback: e.g. #name=...
-    if (!name && window.location.hash) {
+    if (window.location.hash) {
       var hashMatch = window.location.hash.match(/name=([^&]+)/);
       if (hashMatch) {
         try {
-          name = decodeURIComponent(hashMatch[1]);
+          return decodeURIComponent(hashMatch[1]).trim();
         } catch (e) {
-          name = hashMatch[1];
+          return hashMatch[1].trim();
         }
       }
     }
-    return { name: name, prefix: prefix };
+    return '';
   }
 
-  // Toast notification helper
-  function showToast(text) {
-    var toast = $('#copyToast');
-    toast.text(text).addClass('show');
-    clearTimeout(toast.data('timer'));
-    var timer = setTimeout(function() {
-      toast.removeClass('show');
-    }, 2800);
-    toast.data('timer', timer);
-  }
-
-  // Clipboard copy helper with fallback
-  function copyTextToClipboard(text, onSuccess, onError) {
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
-        fallbackCopy(text, onSuccess, onError);
-      });
-    } else {
-      fallbackCopy(text, onSuccess, onError);
+  // Update browser URL query
+  function syncUrl(name) {
+    if (window.history && window.history.replaceState) {
+      try {
+        var url = new URL(window.location.href);
+        if (name) {
+          url.searchParams.set('name', name);
+        } else {
+          url.searchParams.delete('name');
+        }
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {}
     }
   }
 
-  function fallbackCopy(text, onSuccess, onError) {
-    var textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.top = "-9999px";
-    textArea.style.left = "-9999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-      var successful = document.execCommand('copy');
-      if (successful && onSuccess) onSuccess();
-      else if (!successful && onError) onError();
-    } catch (err) {
-      if (onError) onError(err);
+  var currentName = '';
+
+  // Show birthday celebration screen
+  function showCelebration(name) {
+    currentName = (name || '').trim();
+    if (!currentName) return;
+
+    // Update title text: HAPPY DAY TO [Name]
+    $('.title-text').text('HAPPY DAY TO ' + currentName);
+    document.title = 'HAPPY DAY TO ' + currentName + '! 🎂';
+
+    // Transition from Step 1 to Step 2
+    var nameScreen = $('#nameScreen');
+    var birthdayScreen = $('#birthdayScreen');
+
+    nameScreen.addClass('fade-out');
+    setTimeout(function() {
+      nameScreen.hide();
+      birthdayScreen.css('display', 'flex').addClass('fade-in');
+      syncUrl(currentName);
+    }, 400);
+  }
+
+  // Go back to Step 1 (change name)
+  function showNamePrompt() {
+    var nameScreen = $('#nameScreen');
+    var birthdayScreen = $('#birthdayScreen');
+
+    birthdayScreen.hide().removeClass('fade-in');
+    nameScreen.show().removeClass('fade-out');
+    $('#nameInput').val(currentName).focus().select();
+  }
+
+  // Submit name action
+  function handleNameSubmit() {
+    var val = $('#nameInput').val().trim();
+    if (!val) {
+      $('#inputError').addClass('show');
+      $('.name-card').removeClass('shake');
+      void $('.name-card')[0].offsetWidth; // trigger reflow
+      $('.name-card').addClass('shake');
+      $('#nameInput').focus();
+      return;
     }
-    document.body.removeChild(textArea);
+    $('#inputError').removeClass('show');
+    showCelebration(val);
   }
 
-  // Initialize from URL parameters
-  var initialData = getUrlParams();
-  if (initialData.prefix) {
-    $('#prefixSelect').val(initialData.prefix);
-  }
-  if (initialData.name) {
-    $('#nameInput').val(initialData.name);
-    $('#clearNameBtn').show();
-  }
-  updateTitle(initialData.name, $('#prefixSelect').val());
+  // Event handlers for name submission
+  $('#submitNameBtn').on('click', handleNameSubmit);
 
-  // Input event: live title update as you type
+  $('#nameInput').on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleNameSubmit();
+    }
+  });
+
   $('#nameInput').on('input', function() {
-    var name = $(this).val();
-    var prefix = $('#prefixSelect').val();
-    $('#clearNameBtn').toggle(Boolean(name.trim()));
-    updateTitle(name, prefix);
-    syncUrlAddressBar(name, prefix);
+    if ($(this).val().trim()) {
+      $('#inputError').removeClass('show');
+    }
   });
 
-  // Prefix select change
-  $('#prefixSelect').on('change', function() {
-    var name = $('#nameInput').val();
-    var prefix = $(this).val();
-    updateTitle(name, prefix);
-    syncUrlAddressBar(name, prefix);
-  });
+  // Change name button
+  $('#changeNameBtn').on('click', showNamePrompt);
 
-  // Clear name button
-  $('#clearNameBtn').on('click', function() {
-    $('#nameInput').val('').focus();
-    $(this).hide();
-    var prefix = $('#prefixSelect').val();
-    updateTitle('', prefix);
-    syncUrlAddressBar('', prefix);
-  });
-
-  // Share / Copy link button
-  $('#shareLinkBtn').on('click', function() {
-    var name = $('#nameInput').val().trim();
-    var prefix = $('#prefixSelect').val();
-    var shareUrl = buildShareUrl(name, prefix);
-
-    copyTextToClipboard(shareUrl, function() {
-      if (name) {
-        showToast('คัดลอกลิงก์สำหรับ ' + name + ' แล้ว! 💌');
-      } else {
-        showToast('คัดลอกลิงก์เรียบร้อยแล้ว! 💌');
-      }
-    }, function() {
-      showToast('กรุณาคัดลอกลิงก์จากแถบ URL ด้านบนนะ 🔗');
-    });
-  });
+  // Initial check: if name is passed in URL, prefill it
+  var initialName = getUrlName();
+  if (initialName) {
+    $('#nameInput').val(initialName);
+  }
 
   // When clicking "จุดเทียน"
   $('#lightCandleButton').click(function() {
@@ -250,8 +180,7 @@ jQuery(document).ready(function($) {
     // Light up the flame
     $('.flame').addClass('lit');
 
-    // Display personalized random lighting message
-    var currentName = $('#nameInput').val();
+    // Display personalized lighting message
     var messages = getLightMessages(currentName);
     var msg = messages[Math.floor(Math.random() * messages.length)];
     $('#thankYouMessage').text(msg).addClass('show');
@@ -259,7 +188,6 @@ jQuery(document).ready(function($) {
 
   // When clicking "เป่าเค้ก"
   $('#blowCandleButton').click(function() {
-    var currentName = ($('#nameInput').val() || '').trim();
     if ($('.flame').hasClass('lit')) {
       // Extinguish the flame
       $('.flame').removeClass('lit');
@@ -282,22 +210,4 @@ jQuery(document).ready(function($) {
       $('#thankYouMessage').text(hint).addClass('show');
     }
   });
-
-  // Safe handler for celebrateBtn if present
-  var celebrateBtn = document.getElementById('celebrateBtn');
-  if (celebrateBtn) {
-    celebrateBtn.addEventListener('click', function() {
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }
-      celebrateBtn.style.transform = 'scale(0.95)';
-      setTimeout(function() {
-        celebrateBtn.style.transform = 'scale(1)';
-      }, 100);
-    });
-  }
 });
