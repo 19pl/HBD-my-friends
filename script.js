@@ -154,7 +154,7 @@ jQuery(document).ready(function($) {
   var currentName = '';
 
   // Show birthday celebration screen
-  function showCelebration(name) {
+  function showCelebration(name, instant) {
     currentName = sanitizeText(name);
     if (!currentName) return;
 
@@ -165,6 +165,14 @@ jQuery(document).ready(function($) {
     // Transition from Step 1 to Step 2
     var nameScreen = $('#nameScreen');
     var birthdayScreen = $('#birthdayScreen');
+
+    if (instant) {
+      nameScreen.hide();
+      birthdayScreen.css('display', 'flex');
+      syncUrl(currentName);
+      $('#lightCandleButton').focus();
+      return;
+    }
 
     nameScreen.addClass('fade-out');
     setTimeout(function() {
@@ -231,10 +239,11 @@ jQuery(document).ready(function($) {
     });
   });
 
-  // Initial check: if name is passed in URL, prefill it
+  // Initial check: if name is passed in URL, go straight to birthday celebration
   var initialName = getUrlName();
   if (initialName) {
     $('#nameInput').val(initialName);
+    showCelebration(initialName, true);
   }
 
   // When clicking "จุดเทียน"
